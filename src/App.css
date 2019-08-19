@@ -5,4 +5,7 @@ table{
   border-collapse: collapse;
 }
 table.fixed { table-layout:fixed; }
-table.fixed td { overflow: hidden; }
+table.fixed td { overflow: hidden }
+td{
+  width:100px
+}

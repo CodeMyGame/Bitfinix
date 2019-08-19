@@ -223,8 +223,8 @@ class App extends React.Component {
               return(
                 <tr>
                   <td>{this.msToTime(value[1])}</td>
-                  <td>{value[3]}</td>
-                  <td>{value[2]}</td>
+                  <td>{parseInt(value[3])}</td>
+                  <td>{parseFloat(value[2].toFixed(5))}</td>
               </tr>
               );
             })
