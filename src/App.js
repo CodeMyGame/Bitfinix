@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import { thisExpression } from '@babel/types';
 
 class App extends React.Component {
 
@@ -9,7 +10,8 @@ class App extends React.Component {
     this.state = {
      CHANNEL_ID:"",
      bid_data:[],
-     ask_data:[]
+     ask_data:[],
+     trades:[]
     };
   }
   componentDidMount() {
@@ -53,7 +55,7 @@ class App extends React.Component {
                   let bid_data = this.state.bid_data;
                   for (let i=0;i<bid_data.length;i++) {
                     let element = bid_data[i]
-                    console.log(element)
+                   // console.log(element)
                     let price = element[0];
                     if(price===data[1]){
                       let updated_bid_data_item = [data[1],data[2],data[3]];
@@ -71,7 +73,7 @@ class App extends React.Component {
                 let ask_data = this.state.ask_data;
                 for (let i=0;i<ask_data.length;i++) {
                   let element = ask_data[i]
-                  console.log(element)
+                  //console.log(element)
                   let price = element[0];
                   if(price===data[1]){
                     let updated_ask_data_item = [data[1],data[2],data[3]];
@@ -124,17 +126,49 @@ class App extends React.Component {
     })
     wss.onopen = () => wss.send(msg);
 
-    let msg_trage = JSON.stringify({ 
+    let msg_trade = JSON.stringify({ 
       event: 'subscribe', 
       channel: 'trades', 
       symbol: 'tBTCUSD' 
     })
-    wss_trade.onopen = () => wss_trade.send(msg_trage);
+    wss_trade.onopen = () => wss_trade.send(msg_trade);
 
     wss_trade.onmessage = (msg) =>{
-      console.log(msg)
+      let data  = JSON.parse(msg.data);
+      console.log(data)
+      if(Array.isArray(data)){
+        if(Array.isArray(data[1])){
+          this.setState({
+            trades:data[1]
+          })
+        }else{
+            if(Array.isArray(data[2])){
+              let trade_data = data[2];
+              let trades = this.state.trades;
+              trades.unshift(trade_data);
+              trades.pop();
+              this.setState({
+                trades:trades
+              })
+            }
+        }
+      }
+     
     }
   }
+
+ msToTime(duration) {
+    var milliseconds = parseInt((duration%1000)/100)
+        , seconds = parseInt((duration/1000)%60)
+        , minutes = parseInt((duration/(1000*60))%60)
+        , hours = parseInt((duration/(1000*60*60))%24);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+}
   render() {
     
     return (
@@ -159,7 +193,7 @@ class App extends React.Component {
           }
          
         </table>
-        <table  >
+        <table style={{float:'left'}}>
           <tr>
             <th>PRICE</th>
             <th>AMOUNT</th>
@@ -172,6 +206,25 @@ class App extends React.Component {
                   <td>{value[0]}</td>
                   <td>{value[2]}</td>
                   <td>{value[1]}</td>
+              </tr>
+              );
+            })
+          }
+         
+        </table>
+        <table style={{float:'left',marginLeft:'20px'}}>
+          <tr>
+            <th>TIME</th>
+            <th>PRICE</th>
+            <th>AMOUNT</th>    
+          </tr>
+          {
+            this.state.trades.map((value)=>{
+              return(
+                <tr>
+                  <td>{this.msToTime(value[1])}</td>
+                  <td>{value[3]}</td>
+                  <td>{value[2]}</td>
               </tr>
               );
             })

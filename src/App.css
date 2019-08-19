@@ -4,3 +4,5 @@ table{
   color: aliceblue;
   border-collapse: collapse;
 }
+table.fixed { table-layout:fixed; }
+table.fixed td { overflow: hidden; }
